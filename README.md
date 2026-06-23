@@ -43,3 +43,5 @@ hobbyconnect/
 ├── backend/        Node + Express (API REST) + esquema y semilla automáticos
 └── frontend/       React + Vite + Tailwind
 ```
+
+Cambio de prueba para el flujo de CI/CD.
