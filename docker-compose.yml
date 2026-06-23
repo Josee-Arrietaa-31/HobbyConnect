@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: hobby_db
+    environment:
+      POSTGRES_USER: hobby_user
+      POSTGRES_PASSWORD: hobby_pass
+      POSTGRES_DB: hobbyconnect
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hobby_user -d hobbyconnect"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build: ./backend
+    container_name: hobby_backend
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://hobby_user:hobby_pass@db:5432/hobbyconnect
+      JWT_SECRET: cambia_este_secreto_en_produccion
+      CLIENT_ORIGIN: "*"
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: hobby_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  adminer:
+    image: adminer:latest
+    container_name: hobby_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

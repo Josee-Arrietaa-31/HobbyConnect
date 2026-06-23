@@ -1,0 +1,59 @@
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(180) UNIQUE NOT NULL,
+  password_hash VARCHAR(200) NOT NULL,
+  role VARCHAR(20) NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'user';
+
+CREATE TABLE IF NOT EXISTS hobbies (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(120) UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_hobbies (
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  hobby_id INT REFERENCES hobbies(id) ON DELETE CASCADE,
+  level VARCHAR(20) NOT NULL,
+  PRIMARY KEY (user_id, hobby_id)
+);
+
+CREATE TABLE IF NOT EXISTS groups (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  description TEXT,
+  hobby_id INT REFERENCES hobbies(id),
+  level VARCHAR(20) NOT NULL,
+  community VARCHAR(150) NOT NULL,
+  created_by INT REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS memberships (
+  id SERIAL PRIMARY KEY,
+  group_id INT REFERENCES groups(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  joined_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (group_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS activities (
+  id SERIAL PRIMARY KEY,
+  group_id INT REFERENCES groups(id) ON DELETE CASCADE,
+  title VARCHAR(150) NOT NULL,
+  description TEXT,
+  location VARCHAR(150),
+  activity_date DATE NOT NULL,
+  created_by INT REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+  id SERIAL PRIMARY KEY,
+  group_id INT REFERENCES groups(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
